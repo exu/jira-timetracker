@@ -88,6 +88,7 @@ func main() {
 	if *id == "" {
 		out, err := exec.Command("sh", "-c", "git rev-parse --symbolic-full-name --abbrev-ref HEAD").Output()
 		if err != nil {
+			flag.Usage()
 			log.Fatalln("Can't find issue id, and you're probably not in git repo to guess it by feature branch")
 		}
 		*id = strings.TrimSpace(string(out))
