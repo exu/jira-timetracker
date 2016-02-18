@@ -1,6 +1,8 @@
-cd ~/bin/scripts
 go build -ldflags "-s" -o jira jira.go
 GOOS=darwin go build -ldflags "-s" -o jira_mac jira.go
 goupx jira
-
 cp jira ~/bin/
+
+git add jira-build jira jira_mac jira.go
+git commit -m "update"
+git push
