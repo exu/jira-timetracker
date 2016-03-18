@@ -34,3 +34,17 @@ default duration of your work is set to 7h (hmmm why? :) ) but you can override 
 If you doesn't like agile time tracking put call to this program into your crontab :P
 
 Voila!
+
+
+### Password in ~/.auth.json file
+
+You can store your credentials in ~/.auth.json file
+
+    {
+        "jira": {
+            "user": "yourJiraUsername",
+            "pass": "yourJiraPassword"
+        }
+    }
+
+Program will automatically detect presence of this file.
