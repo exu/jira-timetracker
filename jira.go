@@ -10,7 +10,9 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
+	"os/user"
 	"strings"
 	"time"
 )
@@ -18,12 +20,20 @@ import (
 var username = flag.String("u", "", "jira user name")
 var password = flag.String("p", "", "jira password")
 var id = flag.String("id", "", "jira task/story id")
-var message = flag.String("m", "I've done it", "time log message")
+var message = flag.String("m", "", "time log message")
 var duration = flag.String("d", "7h", "time spent on task in duration format e.g. 1h10m")
 
 // Custom time because jira need one true format (server: 500 if not fit)
 const JIRA_TIME_FORMAT = "2006-01-02T15:04:05.000Z0700"
 const JIRA_URL = "http://jira.pearson.com/rest/api/2/issue/"
+const JSON_CONFIG_FILE = ".auth.json"
+
+type Config struct {
+	Jira struct {
+		User string `json:"user"`
+		Pass string `json:"pass"`
+	} `json:"jira"`
+}
 
 // Custom serializable to json time object
 type Time struct {
@@ -79,6 +89,26 @@ func req(username, password, id, durationString, message string) error {
 	return nil
 }
 
+func loadFromJSON() (string, string) {
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	configFile := usr.HomeDir + "/" + JSON_CONFIG_FILE
+
+	file, _ := os.Open(configFile)
+	decoder := json.NewDecoder(file)
+	config := &Config{}
+
+	err = decoder.Decode(&config)
+	if err != nil {
+		log.Println("Decode ./config.json error:", err)
+	}
+
+	return config.Jira.User, config.Jira.Pass
+}
+
 func init() {
 	flag.Parse()
 }
@@ -93,6 +123,10 @@ func main() {
 		}
 		*id = strings.TrimSpace(string(out))
 		log.Printf("Time tracking for current branch '%s'", *id)
+	}
+
+	if *username == "" && *password == "" {
+		*username, *password = loadFromJSON()
 	}
 
 	if *username == "" || *password == "" || *id == "" || *duration == "" {
