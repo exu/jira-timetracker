@@ -96,6 +96,7 @@ func loadFromJSON() (string, string) {
 	}
 
 	configFile := usr.HomeDir + "/" + JSON_CONFIG_FILE
+	log.Println("Loading config from file:", configFile)
 
 	file, err := os.Open(configFile)
 	if err != nil {
