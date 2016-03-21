@@ -97,7 +97,10 @@ func loadFromJSON() (string, string) {
 
 	configFile := usr.HomeDir + "/" + JSON_CONFIG_FILE
 
-	file, _ := os.Open(configFile)
+	file, err := os.Open(configFile)
+	if err != nil {
+		log.Println("Can't load config data from:", configFile)
+	}
 	decoder := json.NewDecoder(file)
 	config := &Config{}
 
